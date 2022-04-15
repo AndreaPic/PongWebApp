@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  app-name: "PongWebApp"
+  app-name: "pongwebapp"
   rg-name: "rg-dloopd-dev-weu-001"
   
 jobs:

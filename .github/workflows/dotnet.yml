@@ -1,0 +1,95 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'The reason for running the workflow'
+        required: true
+        default: 'Manual build from GitHub UI'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+env:
+  app-name: "pongwebapp"
+  rg-name: "rg-dloopd-dev-weu-001"
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish PongWebApp/PongWebApp.csproj -c Release -o website
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: website
+        path: website/**        
+        if-no-files-found: error
+        
+  deploy_prod:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: PROD
+      url: ${{ steps.deploywebapp.outputs.webapp-url }}
+      
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: website
+          path: website
+
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy web app
+        id: deploywebapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.app-name }}          
+          package: website
+
+      - name: Update config
+        uses: Azure/appservice-settings@v1
+        with:
+          app-name: ${{ env.app-name }}
+          app-settings-json: |
+            [
+                {
+                    "name": "DelayMS",
+                    "value": "${{ secrets.DELAYMS }}",
+                    "slotSetting": false
+                },
+                {
+                    "name": "PingBaseAddress",
+                    "value": "${{ secrets.PINGBASEADDRESS }}",
+                    "slotSetting": false
+                },
+                {
+                    "name": "TimeoutMS",
+                    "value": "${{ secrets.TIMEOUTMS }}",
+                    "slotSetting": false
+                }                
+            ]
+
+      - name: az cli logout
+        run: az logout

@@ -48,7 +48,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 //headers propagation
-//app.UseHeaderPropagation();
+app.UseHeaderPropagation();
 
 app.UseRouting();
 

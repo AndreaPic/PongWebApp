@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace PongWebApp.Controllers
 {
@@ -7,6 +8,23 @@ namespace PongWebApp.Controllers
     [ApiController]
     public class PongController : ControllerBase
     {
+        private string MemoryAllocation(int quantity)
+        {
+            string s = null;
+            if (quantity > 0)
+            {
+                s = String.Empty;
+                s = s.PadRight(10);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < quantity * 1000; i++)
+                {
+                    sb.Append(s);
+                }
+                s = sb.ToString();
+            }
+            return s;
+        }
+
         private static int callNumber = 0;
         private IConfigurationRoot ConfigRoot;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -29,6 +47,9 @@ namespace PongWebApp.Controllers
 
             try
             {
+                int mallocQty = ConfigRoot.GetValue<int>("MemoryAllocation", 0);
+                var s = MemoryAllocation(mallocQty);
+
                 int delay = ConfigRoot.GetValue<int>("DelayMS", 0);
 
                 if (delay > 0)

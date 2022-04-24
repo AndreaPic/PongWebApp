@@ -10,12 +10,12 @@ builder.Services.AddHttpContextAccessor().AddLogging().AddHttpClient();
 
 //headers propagation
 //Microsoft.AspNetCore.HeaderPropagation package
-
+/*
 builder.Services.AddHttpContextAccessor().AddLogging().AddHttpClient("").AddHeaderPropagation(options =>
 {
     options.Headers.Add("X-LOOP-DETECT");
 });
-
+*/
 
 builder.Services.AddControllers();
 // Add services to the container.

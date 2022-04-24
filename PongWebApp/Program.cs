@@ -1,4 +1,4 @@
-using DistributedLoopDetector;
+//using DistributedLoopDetector;
 using Microsoft.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,12 +10,11 @@ builder.Services.AddHttpContextAccessor().AddLogging().AddHttpClient();
 
 //headers propagation
 //Microsoft.AspNetCore.HeaderPropagation package
-
-builder.Services.AddHttpContextAccessor().AddLogging().AddHttpClient("").AddHeaderPropagation(options =>
+builder.Services.AddHttpContextAccessor().AddLogging().AddHttpClient("").AddHeaderPropagation();
+builder.Services.AddHeaderPropagation(options =>
 {
     options.Headers.Add("X-LOOP-DETECT");
 });
-
 
 builder.Services.AddControllers();
 // Add services to the container.
@@ -30,6 +29,8 @@ builder.Services.AddStackExchangeRedisCache(options => // <-----
     options.InstanceName = "redis-dloopd-dev-weu-001";
 });
 */
+
+//builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

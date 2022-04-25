@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="6.0.4" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.0-preview.3.22178.4" />
-    <PackageReference Include="SPS.DistributedLoopDetector" Version="1.0.0-beta" />
+    <PackageReference Include="SPS.DistributedLoopDetector" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

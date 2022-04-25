@@ -95,5 +95,65 @@ namespace PongWebApp.Controllers
 
             return Ok(ret);
         }
+
+        [HttpGet("Peng")]
+        public async Task<IActionResult> Peng()
+        {
+            string ret = string.Empty;
+
+            Interlocked.Increment(ref callNumber);
+            _logger.LogInformation($"Peng call number: {callNumber}");
+
+            try
+            {
+                int mallocQty = ConfigRoot.GetValue<int>("MemoryAllocation", 0);
+                var s = MemoryAllocation(mallocQty);
+
+                int delay = ConfigRoot.GetValue<int>("DelayMS", 0);
+
+                if (delay > 0)
+                {
+                    await Task.Delay(delay);
+                }
+
+                string pingBaseAddress = ConfigRoot.GetValue<string>("PingBaseAddress");
+                string endpoint = string.Empty;
+                if (pingBaseAddress != null)
+                {
+                    endpoint = $"{pingBaseAddress}api/Ping/Pang";
+                }
+
+                var httpRequestMessage = new HttpRequestMessage(
+                                    HttpMethod.Get,
+                                    endpoint);
+
+                var httpClient = _httpClientFactory.CreateClient();
+                int timeout = ConfigRoot.GetValue<int>("TimeoutMS", 0);
+
+                if (timeout > 0)
+                {
+                    httpClient.Timeout = TimeSpan.FromMilliseconds(timeout);
+                }
+
+                var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    ret = $"Peng Call Number: {callNumber} - Pang Response: " + await httpResponseMessage.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    ret = $"Call To Pang Return Status Code: {httpResponseMessage.StatusCode}";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return Ok(ex.Message);
+            }
+
+            return Ok(ret);
+        }
+
     }
 }
